@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View, TextInput, Button, FlatList } from 'react-native';
+import { StyleSheet, Text, View, FlatList } from 'react-native';
 import { initializeApp } from 'firebase/app'
 import { getDatabase, push, ref, onValue, remove } from 'firebase/database';
 import { useEffect, useState } from 'react';
+import { Header, Input, Button, ListItem, Icon } from '@rneui/themed';
 
   const firebaseConfig = {
     apiKey: "AIzaSyB4obANQ_0-efURDcblHGGGYQpjzjDO9wQ",
@@ -45,48 +46,42 @@ export default function App() {
     remove(ref(database, '/products/' + key))
   };
 
-  const listSeparator = () => {
-    return (
-      <View
-        style={{
-          height: 5,
-          width: "80%",
-          backgroundColor: "#fff",
-          marginLeft: "10%"
-        }}
-      />
-    );
-  };
+  const renderItem = ({item}) => (
+    <View style={styles.textinput}>
+      <ListItem bottomDivider>
+        <ListItem.Content>
+          <ListItem.Title>{item.product}</ListItem.Title>
+          <ListItem.Subtitle>{item.amount}</ListItem.Subtitle>
+        </ListItem.Content>
+        <Icon type="material" name="delete" onPress={() => deleteProduct(item.key)}></Icon>
+      </ListItem>
+    </View>
+  ) 
+  
 
   return (
-    <View style={styles.container}>
-      <TextInput 
-        style={styles.textinput1}
-        placeholder='Product' 
+    <View>
+      <Header
+        centerComponent={{ text: 'SHOPPING LIST', style: { color: '#fff'} }}
+      />
+      <Input 
+        placeholder='Enter product here' label='PRODUCT'
         onChangeText={(productName) => setProductName(productName)}
         value={productName}
       />  
-      <TextInput 
-        style={styles.textinput2}
-        placeholder='Amount' 
+      <Input 
+        placeholder='Enter amount here' label='AMOUNT' 
         onChangeText={(amount) => setAmount(amount)}
         value={amount}
-      />      
-      <Button onPress={saveProduct} title="Save" /> 
-      <Text style={styles.shoppinglistheader}>Shopping list</Text>
+      />   
+      <View style={styles.saveButton}>
+        <Button raised icon={{name: 'save'}} onPress={saveProduct} title="Save" /> 
+      </View>   
       <FlatList 
         style={{marginLeft : "5%"}}
         keyExtractor={item => item.key} 
-        renderItem={({item}) => 
-          <View style={styles.listcontainer}>
-            <Text 
-              style={{fontSize: 18}}>{item.product}, {item.amount}
-            </Text>
-            <Text style={{fontSize: 18, color: 'red'}} onPress={() => deleteProduct(item.key)}> Delete</Text>
-          </View>
-        } 
+        renderItem={renderItem} 
         data={products} 
-        ItemSeparatorComponent={listSeparator} 
       />       
     </View>
   );
@@ -95,17 +90,17 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+  },
+  saveButton: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 20,
+    width: '100%',
+    height: '10%',
   },
-  textinput1: {
-    marginTop: 50, 
-    fontSize: 18, 
-    width: 200, 
-    borderColor: 'gray', 
-    borderWidth: 1, 
-    height: 30,
+  textinput: {
+    width: 300,
+    marginLeft: '5%',
   },
 
   textinput2: { 
